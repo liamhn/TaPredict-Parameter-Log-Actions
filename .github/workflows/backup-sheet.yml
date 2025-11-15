@@ -1,0 +1,31 @@
+name: Backup Google Sheet
+
+on:
+  schedule:
+    - cron: "15 19 * * 1"  # weekly Monday @ 3am UTC
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Download CSV
+      run: |
+        curl -L -o sheet.csv \
+          "https://docs.google.com/spreadsheets/d/14gW99ky0KP3DxU6lI_DbzdHrRGwr7KHPbBwQmgqodvc/export?format=csv"
+
+    - name: Save dated backup
+      run: |
+        mkdir -p backups
+        cp sheet.csv "backups/sheet_$(date +%Y-%m-%d).csv"
+
+    - name: Commit and push
+      run: |
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        git add backups/
+        git commit -m "Weekly backup $(date +%Y-%m-%d)" || echo "No changes"
+        git push
