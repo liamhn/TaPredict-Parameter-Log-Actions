@@ -2,9 +2,11 @@ name: Backup Google Sheet
 
 on:
   schedule:
-    - cron: "15 19 * * 1"  # weekly Monday @ 3am UTC
+    - cron: "0 3 * * 1"
   workflow_dispatch:
 
+permissions:
+  contents: write   # ← REQUIRED for git push
 jobs:
   backup:
     runs-on: ubuntu-latest
